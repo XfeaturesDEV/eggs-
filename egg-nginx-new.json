@@ -13,7 +13,7 @@
         "ghcr.io/xfeaturesdev/nginx-pterodactyl:latest": "ghcr.io/xfeaturesdev/nginx-pterodactyl:latest"
     },
     "file_denylist": [],
-    "startup": "rm -rf /home/container/tmp/*; mkdir -p /home/container/tmp; CONF=/home/container/nginx/conf.d/default.conf; sed -i \"/^##PHP_LOCATION_START##$/,/^##PHP_LOCATION_END##$/d\" \"$CONF\"; if [ \"${PHP_ENABLED}\" = \"1\" ] || [ \"${PHP_ENABLED}\" = \"true\" ]; then echo \"✓ PHP включен\"; { echo \"##PHP_LOCATION_START##\"; cat /home/container/nginx/php-location.conf; echo \"##PHP_LOCATION_END##\"; } > /home/container/tmp/php-location-built.conf; sed -i \"/^[[:space:]]*##PHP_LOCATION_BLOCK##[[:space:]]*$/r /home/container/tmp/php-location-built.conf\" \"$CONF\"; php-fpm83 -D; fi; echo \"✓ Сервер запущен\"; /usr/sbin/nginx -c /home/container/nginx/nginx.conf -p /home/container/",
+    "startup": "PHP_INCLUDE=/tmp/nginx-php-location.conf; if [ \"${PHP_ENABLED}\" = \"1\" ] || [ \"${PHP_ENABLED}\" = \"true\" ]; then echo \"✓ PHP включен\"; cp /home/container/nginx/php-location.conf \"$PHP_INCLUDE\"; php-fpm83 -D; else : > \"$PHP_INCLUDE\"; fi; echo \"✓ Сервер запущен\"; /usr/sbin/nginx -c /home/container/nginx/nginx.conf -p /home/container/",
     "config": {
         "files": "{\r\n    \"nginx/conf.d/default.conf\": {\r\n        \"parser\": \"file\",\r\n        \"find\": {\r\n            \"    listen \": \"    listen {{server.build.default.port}};\"\r\n        }\r\n    }\r\n}",
         "startup": "{\r\n    \"done\": \"\",\r\n    \"userInteraction\": []\r\n}",
@@ -22,7 +22,7 @@
     },
     "scripts": {
         "installation": {
-            "script": "#!/bin/bash\r\ncd /mnt/server\r\ngit clone https://github.com/XfeaturesDEV/eggs-.git ./temp\r\ncp -r ./temp/nginx /mnt/server/\r\nrm -rf ./temp\r\nmkdir /mnt/server/tmp\r\nmkdir /mnt/server/logs\r\nmkdir /mnt/server/webroot",
+            "script": "#!/bin/bash\r\ncd /mnt/server\r\ngit clone https://github.com/XfeaturesDEV/eggs-.git ./temp\r\ncp -r ./temp/nginx /mnt/server/\r\nrm -rf ./temp\r\nmkdir /mnt/server/logs\r\nmkdir /mnt/server/webroot",
             "container": "ghcr.io/parkervcp/installers:debian",
             "entrypoint": "bash"
         }

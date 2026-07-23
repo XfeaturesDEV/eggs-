@@ -31,7 +31,7 @@ RUN apk --update --no-cache add curl ca-certificates nginx \
         -e "s/^;\?listen.mode.*//" \
         /etc/php83/php-fpm.d/www.conf \
     && sed -i \
-        -e "s#^;\?pid = .*#pid = /home/container/tmp/php-fpm83.pid#" \
+        -e "s#^;\?pid = .*#pid = /tmp/php-fpm83.pid#" \
         -e "s#^;\?error_log = .*#error_log = /home/container/logs/php-fpm.log#" \
         /etc/php83/php-fpm.conf
 
