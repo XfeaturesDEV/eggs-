@@ -35,7 +35,7 @@ RUN apk --update --no-cache add curl ca-certificates nginx \
         -e "s#^;\?error_log = .*#error_log = /home/container/logs/php-fpm.log#" \
         /etc/php83/php-fpm.conf
 
-RUN addgroup -g 1000 container && adduser -D -u 1000 -G container -h /home/container -s /bin/ash container
+RUN addgroup -g 988 container && adduser -D -u 988 -G container -h /home/container -s /bin/ash container
 
 USER container
 ENV  USER container
