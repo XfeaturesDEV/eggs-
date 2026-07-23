@@ -14,11 +14,7 @@ fi
 
 if [ "${CF_ONLY_MODE}" = "1" ] || [ "${CF_ONLY_MODE}" = "true" ]; then
     echo "✓ Режим \"только Cloudflare\" включен: прямой доступ по IP заблокирован"
-    {
-        echo "allow 127.0.0.1;"
-        echo "allow ::1;"
-        echo "deny all;"
-    } > "$CF_RESTRICT"
+    echo "if (\$cf_only_blocked) { return 403; }" > "$CF_RESTRICT"
 else
     : > "$CF_RESTRICT"
 fi
