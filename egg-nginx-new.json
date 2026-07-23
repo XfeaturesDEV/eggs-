@@ -13,9 +13,9 @@
         "ghcr.io/xfeaturesdev/nginx-pterodactyl:latest": "ghcr.io/xfeaturesdev/nginx-pterodactyl:latest"
     },
     "file_denylist": [],
-    "startup": "PHP_INCLUDE=/tmp/nginx-php-location.conf; CF_RESTRICT=/tmp/nginx-cf-restrict.conf; if [ \"${PHP_ENABLED}\" = \"1\" ] || [ \"${PHP_ENABLED}\" = \"true\" ]; then echo \"✓ PHP включен\"; cp /home/container/nginx/php-location.conf \"$PHP_INCLUDE\"; php-fpm83 -D; else : > \"$PHP_INCLUDE\"; fi; if [ \"${CF_ONLY_MODE}\" = \"1\" ] || [ \"${CF_ONLY_MODE}\" = \"true\" ]; then echo \"✓ Режим CF-only включен\"; echo \"if (\\$cf_only_blocked) { return 403; }\" > \"$CF_RESTRICT\"; else : > \"$CF_RESTRICT\"; fi; if [ -n \"${CF_TUNNEL_TOKEN}\" ]; then echo \"✓ Запускаю Cloudflare Tunnel\"; cloudflared tunnel --no-autoupdate run --token \"${CF_TUNNEL_TOKEN}\" & fi; echo \"✓ Сервер запущен\"; /usr/sbin/nginx -c /home/container/nginx/nginx.conf -p /home/container/",
+    "startup": "PHP_INCLUDE=/tmp/nginx-php-location.conf; LISTEN_CONF=/tmp/nginx-listen.conf; PORT=${SERVER_PORT:-80}; if [ \"${PHP_ENABLED}\" = \"1\" ] || [ \"${PHP_ENABLED}\" = \"true\" ]; then echo \"✓ PHP включен\"; cp /home/container/nginx/php-location.conf \"$PHP_INCLUDE\"; php-fpm83 -D; else : > \"$PHP_INCLUDE\"; fi; if [ \"${CF_ONLY_MODE}\" = \"1\" ] || [ \"${CF_ONLY_MODE}\" = \"true\" ]; then echo \"✓ Режим CF-only включен: порт ${PORT} закрыт снаружи\"; echo \"listen 127.0.0.1:${PORT};\" > \"$LISTEN_CONF\"; else echo \"listen ${PORT};\" > \"$LISTEN_CONF\"; fi; if [ -n \"${CF_TUNNEL_TOKEN}\" ]; then echo \"✓ Запускаю Cloudflare Tunnel\"; cloudflared tunnel --no-autoupdate run --token \"${CF_TUNNEL_TOKEN}\" & fi; echo \"✓ Сервер запущен\"; /usr/sbin/nginx -c /home/container/nginx/nginx.conf -p /home/container/",
     "config": {
-        "files": "{\r\n    \"nginx/conf.d/default.conf\": {\r\n        \"parser\": \"file\",\r\n        \"find\": {\r\n            \"    listen \": \"    listen {{server.build.default.port}};\"\r\n        }\r\n    }\r\n}",
+        "files": "{}",
         "startup": "{\r\n    \"done\": \"\",\r\n    \"userInteraction\": []\r\n}",
         "logs": "{\r\n    \"custom\": false,\r\n    \"location\": \"logs/latest.log\"\r\n}",
         "stop": "^C^C"
@@ -50,7 +50,7 @@
         },
         {
             "name": "Cloudflare-only mode",
-            "description": "Blocks direct access to this server by its IP address — only traffic arriving through the local Cloudflare Tunnel (127.0.0.1) is served. Requires Cloudflare Tunnel Token to be set, otherwise the site becomes unreachable.",
+            "description": "Closes the public port entirely (nginx binds only to 127.0.0.1) so the server is unreachable by its direct IP — only traffic arriving through the local Cloudflare Tunnel is served. Requires Cloudflare Tunnel Token to be set, otherwise the site becomes completely unreachable.",
             "env_variable": "CF_ONLY_MODE",
             "default_value": "0",
             "user_viewable": true,

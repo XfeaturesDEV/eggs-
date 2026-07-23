@@ -2,7 +2,8 @@
 cd /home/container
 
 PHP_INCLUDE="/tmp/nginx-php-location.conf"
-CF_RESTRICT="/tmp/nginx-cf-restrict.conf"
+LISTEN_CONF="/tmp/nginx-listen.conf"
+PORT="${SERVER_PORT:-80}"
 
 if [ "${PHP_ENABLED}" = "1" ] || [ "${PHP_ENABLED}" = "true" ]; then
     echo "✓ PHP включен"
@@ -13,10 +14,10 @@ else
 fi
 
 if [ "${CF_ONLY_MODE}" = "1" ] || [ "${CF_ONLY_MODE}" = "true" ]; then
-    echo "✓ Режим \"только Cloudflare\" включен: прямой доступ по IP заблокирован"
-    echo "if (\$cf_only_blocked) { return 403; }" > "$CF_RESTRICT"
+    echo "✓ Режим \"только Cloudflare\" включен: порт ${PORT} закрыт снаружи, доступ только через локальный туннель"
+    echo "listen 127.0.0.1:${PORT};" > "$LISTEN_CONF"
 else
-    : > "$CF_RESTRICT"
+    echo "listen ${PORT};" > "$LISTEN_CONF"
 fi
 
 if [ -n "${CF_TUNNEL_TOKEN}" ]; then
