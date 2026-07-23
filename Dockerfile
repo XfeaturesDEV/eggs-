@@ -35,6 +35,17 @@ RUN apk --update --no-cache add curl ca-certificates nginx \
         -e "s#^;\?error_log = .*#error_log = /home/container/logs/php-fpm.log#" \
         /etc/php83/php-fpm.conf
 
+ARG TARGETARCH=amd64
+RUN case "${TARGETARCH}" in \
+        arm64) CF_ARCH=arm64 ;; \
+        arm)   CF_ARCH=arm ;; \
+        386)   CF_ARCH=386 ;; \
+        *)     CF_ARCH=amd64 ;; \
+    esac \
+    && curl -fsSL -o /usr/local/bin/cloudflared \
+        "https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-${CF_ARCH}" \
+    && chmod +x /usr/local/bin/cloudflared
+
 RUN addgroup -g 988 container && adduser -D -u 988 -G container -h /home/container -s /bin/ash container
 
 USER container
