@@ -4,8 +4,8 @@ on:
   push:
     branches: [main]
     paths:
-      - "nginx/Dockerfile"
-      - "nginx/entrypoint.sh"
+      - "Dockerfile"
+      - "entrypoint.sh"
       - ".github/workflows/nginx-image.yml"
   workflow_dispatch: {}
 
@@ -35,8 +35,8 @@ jobs:
       - name: Build and push
         uses: docker/build-push-action@v6
         with:
-          context: ./nginx
-          file: ./nginx/Dockerfile
+          context: .
+          file: ./Dockerfile
           push: true
           tags: |
             ${{ env.IMAGE_NAME }}:latest
