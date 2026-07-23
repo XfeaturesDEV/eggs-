@@ -1,0 +1,42 @@
+{
+    "_comment": "DO NOT EDIT: FILE GENERATED AUTOMATICALLY BY PTERODACTYL PANEL - PTERODACTYL.IO",
+    "meta": {
+        "version": "PTDL_v2",
+        "update_url": null
+    },
+    "exported_at": "2026-01-22T00:05:33+01:00",
+    "name": "Nginx New",
+    "author": "info@finniedj.nl",
+    "description": "A clean, minimal Nginx egg for hosting any static website, with an optional PHP-FPM toggle.",
+    "features": [],
+    "docker_images": {
+        "ghcr.io/xfeaturesdev/nginx-pterodactyl:latest": "ghcr.io/xfeaturesdev/nginx-pterodactyl:latest"
+    },
+    "file_denylist": [],
+    "startup": "rm -rf /home/container/tmp/*; mkdir -p /home/container/tmp; CONF=/home/container/nginx/conf.d/default.conf; sed -i \"/^##PHP_LOCATION_START##$/,/^##PHP_LOCATION_END##$/d\" \"$CONF\"; if [ \"${PHP_ENABLED}\" = \"1\" ] || [ \"${PHP_ENABLED}\" = \"true\" ]; then echo \"✓ PHP включен\"; { echo \"##PHP_LOCATION_START##\"; cat /home/container/nginx/php-location.conf; echo \"##PHP_LOCATION_END##\"; } > /home/container/tmp/php-location-built.conf; sed -i \"/^[[:space:]]*##PHP_LOCATION_BLOCK##[[:space:]]*$/r /home/container/tmp/php-location-built.conf\" \"$CONF\"; php-fpm83 -D; fi; echo \"✓ Сервер запущен\"; /usr/sbin/nginx -c /home/container/nginx/nginx.conf -p /home/container/",
+    "config": {
+        "files": "{\r\n    \"nginx/conf.d/default.conf\": {\r\n        \"parser\": \"file\",\r\n        \"find\": {\r\n            \"    listen \": \"    listen {{server.build.default.port}};\"\r\n        }\r\n    }\r\n}",
+        "startup": "{\r\n    \"done\": \"\",\r\n    \"userInteraction\": []\r\n}",
+        "logs": "{\r\n    \"custom\": false,\r\n    \"location\": \"logs/latest.log\"\r\n}",
+        "stop": "^C^C"
+    },
+    "scripts": {
+        "installation": {
+            "script": "#!/bin/bash\r\ncd /mnt/server\r\ngit clone https://github.com/XfeaturesDEV/eggs-.git ./temp\r\ncp -r ./temp/nginx /mnt/server/\r\nrm -rf ./temp\r\nmkdir /mnt/server/tmp\r\nmkdir /mnt/server/logs\r\nmkdir /mnt/server/webroot",
+            "container": "ghcr.io/parkervcp/installers:debian",
+            "entrypoint": "bash"
+        }
+    },
+    "variables": [
+        {
+            "name": "Enable PHP",
+            "description": "Turns on PHP-FPM support (.php files) for this server. Leave at 0 for a plain static Nginx site.",
+            "env_variable": "PHP_ENABLED",
+            "default_value": "0",
+            "user_viewable": true,
+            "user_editable": true,
+            "rules": "required|boolean",
+            "field_type": "text"
+        }
+    ]
+}
